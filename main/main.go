@@ -1,12 +1,11 @@
 package main
 
 import (
-	"errors"
+	data "example/user/Luis/data"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
-	"os"
 )
 
 const keyServerAddr = "serverAddr"
@@ -46,15 +45,19 @@ func getHello(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	http.HandleFunc("/", getRoot)
-	http.HandleFunc("/hello", getHello)
+	data.Db1()
+	/*
 
-	err := http.ListenAndServe(":3333", nil)
+		http.HandleFunc("/", getRoot)
+		http.HandleFunc("/hello", getHello)
 
-	if errors.Is(err, http.ErrServerClosed) { //Error when Server gets told to shut down
-		fmt.Printf("server closed\n")
-	} else if err != nil {
-		fmt.Printf("error starting server: %s\n", err)
-		os.Exit(1)
-	}
+		err := http.ListenAndServe(":3333", nil)
+
+		if errors.Is(err, http.ErrServerClosed) { //Error when Server gets told to shut down
+			fmt.Printf("server closed\n")
+		} else if err != nil {
+			fmt.Printf("error starting server: %s\n", err)
+			os.Exit(1)
+		}
+	*/
 }
