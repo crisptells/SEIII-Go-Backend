@@ -2,5 +2,6 @@
 Backend für die SEIII-App
 
 ## Unterstützte calls
-"/": \n
+"/":
+
 "/hello": 
