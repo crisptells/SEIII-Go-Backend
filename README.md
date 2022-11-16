@@ -2,6 +2,6 @@
 Backend für die SEIII-App
 
 ## Unterstützte calls
-"/":
+"/": 
 
-"/hello": 
+"/hello": Wert myName als Form mitgeben!
