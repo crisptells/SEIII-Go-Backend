@@ -10,8 +10,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-const keyServerAddr = "serverAddr"
-
 func getRoot(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, "hello :)")
@@ -20,7 +18,7 @@ func getRoot(c *gin.Context) {
 
 func main() {
 	//Open connection to DB
-	db, err := sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/tippspiel_db")
+	db, err := sql.Open("mysql", "root:password@tcp(127.0.0.1:3306)/tippspiel_db") //<name of the DB>
 	if err != nil {
 		fmt.Println(err.Error())
 	}
