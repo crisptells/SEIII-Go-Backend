@@ -16,3 +16,15 @@ type Game struct {
 	Result string `json:"result"`
 	Group  string `json:"group"`
 }
+
+type Bet struct {
+	User string `json:"email"`
+	Game string `json:"id"`
+	Result string `json:"result"`
+}
+
+type Group struct {
+	Name string `json:"name"`
+	AdminUser string `json:"admin"`
+	Users []User
+}
