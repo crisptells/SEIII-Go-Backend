@@ -38,20 +38,41 @@ func GetAllGames(db *sql.DB) gin.HandlerFunc {
 	fn := func(c *gin.Context) {
 		rows, err := db.Query("select * from games")
 		if err != nil {
-			fmt.Printf("Error: cant insert into users")
+			fmt.Printf("Error: cant insert into games")
 			panic(err.Error())
 		}
 
 		var games []structure.Game
 		for rows.Next() {
 			var game structure.Game
-			if userErr := rows.Scan(&game.Id, &game.Land1, &game.Land2, &game.Date, &game.Result, &game.Group); userErr != nil {
-				log.Fatal(userErr)
+			if gameErr := rows.Scan(&game.Id, &game.Land1, &game.Land2, &game.Date, &game.Result, &game.Group); gameErr != nil {
+				log.Fatal(gameErr)
 			}
 			games = append(games, game)
 		}
 
 		c.IndentedJSON(200, games)
+	}
+
+	return gin.HandlerFunc(fn)
+}
+
+func UpdateGame(db *sql.DB) gin.HandlerFunc  {
+	fn := func(c *gin.Context) {
+		//Create empty game
+		var game structure.Game
+
+		//BindJSON to bind the received JSON to game
+		if err := c.BindJSON(&game); err != nil {
+			panic(err)
+		}
+		_, err := db.Query("UPDATE games SET idgames = ?, Land1 = ?, Land2 = ?, Datum = ?, Ergebnis = ?, Gruppe = ? WHERE idgames = ?", game.Id, game.Land1, game.Land2, game.Date, game.Result, game.Group, game.Id)
+		if err != nil {
+			fmt.Printf("Error: cant update game")
+			panic(err.Error())
+		}
+
+		c.IndentedJSON(200, game)
 	}
 
 	return gin.HandlerFunc(fn)

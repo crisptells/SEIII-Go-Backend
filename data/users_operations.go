@@ -27,12 +27,12 @@ func InsertUser(db *sql.DB) gin.HandlerFunc {
 		if err := c.BindJSON(&newUser); err != nil {
 			panic(err)
 		}
-		insert, err := db.Prepare("INSERT INTO `users`(`email`,`passwort`,`name`,`vorname`, `geld`)VALUES(?, ?, ?, ?, ?)")
+		insert, err := db.Prepare("INSERT INTO `users`(`email`,`password`,`name`,`Vorname`, `Geld`)VALUES(?, ?, ?, ?, ?)")
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		_, insertErr := insert.Exec(&newUser.Email, &newUser.Password, &newUser.Name, &newUser.FirstName, 0)
+		_, insertErr := insert.Exec(&newUser.Email, &newUser.Password, &newUser.Name, &newUser.FirstName, &newUser.Cash)
 		if insertErr != nil {
 			log.Fatal(insertErr)
 		}
@@ -60,6 +60,27 @@ func GetAllUsers(db *sql.DB) gin.HandlerFunc {
 		}
 
 		c.IndentedJSON(200, users)
+	}
+
+	return gin.HandlerFunc(fn)
+}
+
+func UpdateUser(db *sql.DB) gin.HandlerFunc {
+	fn := func(c *gin.Context) {
+		//Create empty user
+		var user structure.User
+
+		//BindJSON to bind the received JSON to newUser
+		if err := c.BindJSON(&user); err != nil {
+			panic(err)
+		}
+		_, err := db.Query("UPDATE users SET email = ?, password = ?, name = ?, vorname = ?, geld = ? WHERE email = ?", user.Email, user.Password, user.Name, user.FirstName, user.Cash, user.Email)
+		if err != nil {
+			fmt.Printf("Error: cant update user")
+			panic(err.Error())
+		}
+
+		c.IndentedJSON(200, user)
 	}
 
 	return gin.HandlerFunc(fn)
