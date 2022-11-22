@@ -31,10 +31,11 @@ func main() {
 	router.GET("/Users", data.GetAllUsers(db))
 	router.POST("/AddUser", data.InsertUser(db))
 	router.POST("/UpdateUser", data.UpdateUser(db))
+	router.POST("/LoginUser", data.LoginUser(db))
 
 	//Routes for games
 	router.GET("/Games", data.GetAllGames(db))
-	router.POST("/AddGame", data.InsertGame(db))
+	//router.POST("/AddGame", data.InsertGame(db)) why would you?
 	router.POST("/UpdateGame", data.UpdateGame(db))
 	router.Run("localhost:3333")
 }

@@ -11,12 +11,13 @@ import (
 )
 
 func InsertGame(db *sql.DB) gin.HandlerFunc {
-	fn := func(c *gin.Context) {
+	return func(c *gin.Context) {
 		//Create empty game
 		var newGame structure.Game
 
 		//BindJSON to bind the received JSON to newGame
 		if err := c.BindJSON(&newGame); err != nil {
+			c.IndentedJSON(400, "Failed to bind given values")
 			panic(err)
 		}
 		insert, err := db.Prepare("INSERT INTO `games`(`idgame`,`Land1`,`Land2`,`Datum`, `Ergebnis`, `Gruppe`)VALUES(?, ?, ?, ?, ?, ?)")
@@ -31,15 +32,15 @@ func InsertGame(db *sql.DB) gin.HandlerFunc {
 
 		c.IndentedJSON(200, newGame)
 	}
-	return gin.HandlerFunc(fn)
 }
 
 func GetAllGames(db *sql.DB) gin.HandlerFunc {
-	fn := func(c *gin.Context) {
+	return func(c *gin.Context) {
 		rows, err := db.Query("select * from games")
 		if err != nil {
-			fmt.Printf("Error: cant insert into games")
+			c.IndentedJSON(400, "cant find games")
 			panic(err.Error())
+			return
 		}
 
 		var games []structure.Game
@@ -53,17 +54,16 @@ func GetAllGames(db *sql.DB) gin.HandlerFunc {
 
 		c.IndentedJSON(200, games)
 	}
-
-	return gin.HandlerFunc(fn)
 }
 
 func UpdateGame(db *sql.DB) gin.HandlerFunc  {
-	fn := func(c *gin.Context) {
+	return func(c *gin.Context) {
 		//Create empty game
 		var game structure.Game
 
 		//BindJSON to bind the received JSON to game
 		if err := c.BindJSON(&game); err != nil {
+			c.IndentedJSON(400, "wrong gameID?")
 			panic(err)
 		}
 		_, err := db.Query("UPDATE games SET idgames = ?, Land1 = ?, Land2 = ?, Datum = ?, Ergebnis = ?, Gruppe = ? WHERE idgames = ?", game.Id, game.Land1, game.Land2, game.Date, game.Result, game.Group, game.Id)
@@ -74,6 +74,4 @@ func UpdateGame(db *sql.DB) gin.HandlerFunc  {
 
 		c.IndentedJSON(200, game)
 	}
-
-	return gin.HandlerFunc(fn)
 }
