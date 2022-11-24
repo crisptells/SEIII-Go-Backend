@@ -1,8 +1,9 @@
 package data
 
 import (
-	"database/sql"
+	//"database/sql"
 	structure "example/user/Luis/structures"
+	"example/user/Luis/globals"
 	"fmt"
 	"log"
 	"github.com/gin-gonic/gin"
@@ -14,9 +15,11 @@ var (
 	Name    string
 	Vorname string
 	Geld    string
+	Subjects string
+	Role 	string
 )
 
-func InsertUser(db *sql.DB) gin.HandlerFunc {
+func InsertUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//Create empty user
 		var newUser structure.User
@@ -27,12 +30,12 @@ func InsertUser(db *sql.DB) gin.HandlerFunc {
 			panic(err)
 		}
 		//Check if email already exists
-		rows, err := db.Query("SELECT email FROM users")
+		rows, err := sqldb.DB.Query("SELECT email FROM users")
 		var mails []string
 		for rows.Next() {
 			var mail string
 			if userErr := rows.Scan(&mail); userErr != nil {
-				log.Fatal(userErr)
+				fmt.Printf(userErr.Error())
 			}
 			mails = append(mails, mail)
 		}
@@ -46,14 +49,14 @@ func InsertUser(db *sql.DB) gin.HandlerFunc {
 		}
 
 		//Create user on the DB
-		insert, err := db.Prepare("INSERT INTO `users`(`email`,`password`,`name`,`Vorname`, `Geld`)VALUES(?, ?, ?, ?, ?)")
+		insert, err := sqldb.DB.Prepare("INSERT INTO `users`(`email`,`password`,`name`,`firstName`, `role`, `subjects`)VALUES(?, ?, ?, ?, ?, ?)")
 
 		if err != nil {
 			panic(err)
 			return
 		}
 
-		_, insertErr := insert.Exec(&newUser.Email, &newUser.Password, &newUser.Name, &newUser.FirstName, &newUser.Cash)
+		_, insertErr := insert.Exec(&newUser.Email, &newUser.Password, &newUser.Name, &newUser.FirstName, &newUser.Role, &newUser.Subjects)
 		if insertErr != nil {
 			log.Fatal(insertErr)
 		}
@@ -62,9 +65,9 @@ func InsertUser(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func GetAllUsers(db *sql.DB) gin.HandlerFunc {
+func GetAllUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		rows, err := db.Query("select * from users")
+		rows, err := sqldb.DB.Query("select * from users")
 		if err != nil {
 			c.IndentedJSON(400, "cant find games")
 			panic(err.Error())
@@ -73,7 +76,7 @@ func GetAllUsers(db *sql.DB) gin.HandlerFunc {
 		var users []structure.User
 		for rows.Next() {
 			var user structure.User
-			if userErr := rows.Scan(&user.Email, &user.Password, &user.Name, &user.FirstName, &user.Cash); userErr != nil {
+			if userErr := rows.Scan(&user.Email, &user.Password, &user.Name, &user.FirstName, &user.Role, &user.Subjects); userErr != nil {
 				log.Fatal(userErr)
 			}
 			users = append(users, user)
@@ -83,8 +86,8 @@ func GetAllUsers(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func UpdateUser(db *sql.DB) gin.HandlerFunc {
-	fn := func(c *gin.Context) {
+func UpdateUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
 		//Create empty user
 		var user structure.User
 
@@ -92,8 +95,9 @@ func UpdateUser(db *sql.DB) gin.HandlerFunc {
 		if err := c.BindJSON(&user); err != nil {
 			c.IndentedJSON(400, "wrong Email?")
 			panic(err)
+			return
 		}
-		_, err := db.Query("UPDATE users SET email = ?, password = ?, name = ?, vorname = ?, geld = ? WHERE email = ?", user.Email, user.Password, user.Name, user.FirstName, user.Cash, user.Email)
+		_, err := sqldb.DB.Query("UPDATE users SET email = ?, password = ?, name = ?, firstName = ?, role = ?, subjects = ? WHERE email = ?", user.Email, user.Password, user.Name, user.FirstName, user.Role, user.Subjects, user.Email)
 		if err != nil {
 			fmt.Printf("Error: cant update user")
 			panic(err.Error())
@@ -101,11 +105,9 @@ func UpdateUser(db *sql.DB) gin.HandlerFunc {
 
 		c.IndentedJSON(200, user)
 	}
-
-	return gin.HandlerFunc(fn)
 }
 
-func LoginUser(db *sql.DB) gin.HandlerFunc {
+func LoginUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//Create empty user
 		var user structure.User
@@ -114,8 +116,8 @@ func LoginUser(db *sql.DB) gin.HandlerFunc {
 		if err := c.BindJSON(&user); err != nil {
 			panic(err)
 		}
-		row := db.QueryRow("SELECT * FROM users WHERE email = ?", user.Email)
-		err := row.Scan(&dataUser.Email, &dataUser.Password, &dataUser.Name, &dataUser.FirstName, &dataUser.Cash)
+		row := sqldb.DB.QueryRow("SELECT * FROM users WHERE email = ?", user.Email)
+		err := row.Scan(&dataUser.Email, &dataUser.Password)
 		if err != nil {
 			fmt.Printf("Error: cant get user")
 			panic(err.Error())

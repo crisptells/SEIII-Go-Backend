@@ -5,26 +5,19 @@ type User struct {
 	Password  string `json:"password"`
 	Name      string `json:"name"`
 	FirstName string `json:"firstName"`
-	Cash      string `json:"cash"`
+	Subjects  string `json:"subjects"`
+	Role	  string `json:"role"`
 }
 
-type Game struct {
-	Id     string `json:"id"`
-	Land1  string `json:"land1"`
-	Land2  string `json:"land2"`
-	Date   string `json:"date"`
-	Result string `json:"result"`
-	Group  string `json:"group"`
+type Tutoring struct {
+	Tutor 	  User `json:"user"`
+	Subject   string `json:"subject"`
+	Student   User `json:"student"`
+	MaxStudents string `json:"maxStudents"`
+	Appointments []Appointment
 }
 
-type Bet struct {
-	User string `json:"email"`
-	Game string `json:"id"`
-	Result string `json:"result"`
-}
-
-type Group struct {
-	Name string `json:"name"`
-	AdminUser string `json:"admin"`
-	Users []User
+type Appointment struct {
+	Date	  string `json:"date"`
+	Duration  string `json:"duration"`
 }
