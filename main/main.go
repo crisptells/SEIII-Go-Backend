@@ -2,7 +2,7 @@ package main
 
 import (
 	data "example/user/Luis/data"
-	"example/user/Luis/globals"
+	sqldb "example/user/Luis/globals"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,5 +26,12 @@ func main() {
 	router.POST("/AddUser", data.InsertUser())
 	router.POST("/UpdateUser", data.UpdateUser())
 	router.POST("/LoginUser", data.LoginUser())
+
+	//Routes for Tutorings
+	router.GET("/Tutorings", data.GetAllTutorings())
+	router.POST("/AddTutoring", data.InsertTutoring())
+	router.POST("/UpdateTutoring", data.UpdateTutoring())
+
+	//Starting service
 	router.Run("localhost:3333")
 }

@@ -2,21 +2,27 @@ package data
 
 import (
 	//"database/sql"
+	sqldb "example/user/Luis/globals"
 	structure "example/user/Luis/structures"
-	"example/user/Luis/globals"
 	"fmt"
 	"log"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
-	Tutor 	  		structure.User 	
-	Subject   		string 
-	Student   		structure.User 	
-	MaxStudents 	string 	
-	Appointments	[]structure.Appointment
+	Tutor        structure.User
+	Subject      string
+	Student      structure.User
+	MaxStudents  int
+	Appointments []structure.Appointment
 )
+
+type tutoringKey struct {
+	Tutor   string
+	Subject string
+}
 
 func InsertTutoring() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -30,32 +36,35 @@ func InsertTutoring() gin.HandlerFunc {
 		}
 		//Check if Tutoring already exists
 		rows, err := sqldb.DB.Query("SELECT tutor, subject FROM tutorings")
-		var keys []string
-		for rows.Next() {
-			var mail string
-			if userErr := rows.Scan(&mail); userErr != nil {
-				fmt.Printf(userErr.Error())
-			}
-			mails = append(mails, mail)
-		}
 
-		//Check if given mail is in all the mails from DB
-		for _, mail := range mails {
-			if mail == newTuroring.Email {
-				c.IndentedJSON(400, "Email already exists")
-				return
+		if err == nil {
+			var keys []tutoringKey
+			for rows.Next() {
+				var key tutoringKey
+				if userErr := rows.Scan(&key.Tutor, &key.Subject); userErr != nil {
+					fmt.Println(userErr.Error())
+				}
+				keys = append(keys, key)
+			}
+
+			//Check if given Tutor and Subject combo is already there
+			for _, checkKey := range keys {
+				if checkKey.Tutor == newTuroring.Tutor && checkKey.Subject == newTuroring.Subject {
+					c.IndentedJSON(400, "Email already exists")
+					return
+				}
 			}
 		}
 
 		//Create Tutoring on the DB
-		insert, err := sqldb.DB.Prepare("INSERT INTO `tutorings`(`tutor`,`subject`,`students`,`maxStudents`, `appointments`)VALUES(?, ?, ?, ?, ?)")
+		insert, err := sqldb.DB.Prepare("INSERT INTO `tutorings`(`Tutor`,`Subject`,`Students`,`MaxStudents`, `Appointments`)VALUES(?, ?, ?, ?, ?)")
 
 		if err != nil {
 			panic(err)
 			return
 		}
 
-		_, insertErr := insert.Exec(&newTuroring.Tutor, &newTuroring.Subject, &newTuroring.Student, &newTuroring.MaxStudents, &newTuroring.Appointments)
+		_, insertErr := insert.Exec(&newTuroring.Tutor, &newTuroring.Subject, &newTuroring.Students, &newTuroring.MaxStudents, &newTuroring.Appointments)
 		if insertErr != nil {
 			log.Fatal(insertErr)
 		}
@@ -75,13 +84,13 @@ func GetAllTutorings() gin.HandlerFunc {
 		var tutorings []structure.Tutoring
 		for rows.Next() {
 			var tutoring structure.Tutoring
-			if tutoringErr := rows.Scan(&tutoring.Tutor, &tutoring.Subject, &tutoring.Student, &tutoring.MaxStudents, &tutoring.Appointments); userErr != nil {
+			if tutoringErr := rows.Scan(&tutoring.Tutor, &tutoring.Subject, &tutoring.Students, &tutoring.MaxStudents, &tutoring.Appointments); tutoringErr != nil {
 				log.Fatal(tutoringErr)
 			}
-			users = append(users, user)
+			tutorings = append(tutorings, tutoring)
 		}
 
-		c.IndentedJSON(200, users)
+		c.IndentedJSON(200, tutorings)
 	}
 }
 
@@ -92,16 +101,16 @@ func UpdateTutoring() gin.HandlerFunc {
 
 		//BindJSON to bind the received JSON to newTuroring
 		if err := c.BindJSON(&tutoring); err != nil {
-			c.IndentedJSON(400, "wrong Email?")
+			c.IndentedJSON(400, "wrong Tutoring?")
 			panic(err)
 			return
 		}
-		_, err := sqldb.DB.Query("UPDATE users SET email = ?, password = ?, name = ?, firstName = ?, role = ?, subjects = ? WHERE email = ?", user.Email, user.Password, user.Name, user.FirstName, user.Role, user.Subjects, user.Email)
+		_, err := sqldb.DB.Query("UPDATE tutorings SET Tutor = ?, Subject = ?, Students = ?, MaxStudents = ?, Appointments = ? WHERE Tutor = ? AND Subject = ?", tutoring.Tutor, tutoring.Subject, tutoring.Students, tutoring.MaxStudents, tutoring.Appointments, tutoring.Tutor, tutoring.Subject)
 		if err != nil {
 			fmt.Printf("Error: cant update user")
 			panic(err.Error())
 		}
 
-		c.IndentedJSON(200, user)
+		c.IndentedJSON(200, tutoring)
 	}
 }
