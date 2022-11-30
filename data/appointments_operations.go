@@ -11,30 +11,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var (
-	Tutor        structure.User
-	Subject      string
-	Student      structure.User
-	MaxStudents  int
-	Appointments []structure.Appointment
-)
-
-/*
-*
-
-	type tutoringAppointmentsJOINED struct {
-		Tutoring_id    int
-		Tutor          string
-		Subject        string
-		MaxStudents    int
-		Appointment_id int
-		Date           string
-		Duration       string
-	}
-
-*
-*/
-func InsertTutoring() gin.HandlerFunc {
+func InserAppointment() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//Create empty user
 		var newTuroring structure.Tutoring
@@ -69,7 +46,7 @@ func InsertTutoring() gin.HandlerFunc {
 	}
 }
 
-func GetAllTutorings() gin.HandlerFunc {
+func GetAllAppointments() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		rows, err := sqldb.DB.Query("select * from tutorings")
 		if err != nil {
@@ -90,7 +67,14 @@ func GetAllTutorings() gin.HandlerFunc {
 	}
 }
 
-func UpdateTutoring() gin.HandlerFunc {
+func GetTutoringAppointmetns() gin.HandlerFunc {
+	//hehe
+	return func(c *gin.Context) {
+
+	}
+}
+
+func UpdateAppointment() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//Create empty tutoring
 		var tutoring structure.Tutoring

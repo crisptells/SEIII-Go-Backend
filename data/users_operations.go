@@ -2,21 +2,22 @@ package data
 
 import (
 	//"database/sql"
+	sqldb "example/user/Luis/globals"
 	structure "example/user/Luis/structures"
-	"example/user/Luis/globals"
 	"fmt"
 	"log"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
-	Email   string
-	Name    string
-	Vorname string
-	Geld    string
+	Email    string
+	Name     string
+	Vorname  string
+	Geld     string
 	Subjects string
-	Role 	string
+	Role     string
 )
 
 func InsertUser() gin.HandlerFunc {
@@ -30,12 +31,12 @@ func InsertUser() gin.HandlerFunc {
 			panic(err)
 		}
 		//Check if email already exists
-		rows, err := sqldb.DB.Query("SELECT email FROM users")
+		rows, _ := sqldb.DB.Query("SELECT email FROM users")
 		var mails []string
 		for rows.Next() {
 			var mail string
 			if userErr := rows.Scan(&mail); userErr != nil {
-				fmt.Printf(userErr.Error())
+				fmt.Println(userErr.Error())
 			}
 			mails = append(mails, mail)
 		}
@@ -52,8 +53,8 @@ func InsertUser() gin.HandlerFunc {
 		insert, err := sqldb.DB.Prepare("INSERT INTO `users`(`email`,`password`,`name`,`firstName`, `role`, `subjects`)VALUES(?, ?, ?, ?, ?, ?)")
 
 		if err != nil {
+			c.IndentedJSON(400, "cant create user in DB")
 			panic(err)
-			return
 		}
 
 		_, insertErr := insert.Exec(&newUser.Email, &newUser.Password, &newUser.Name, &newUser.FirstName, &newUser.Role, &newUser.Subjects)
@@ -95,7 +96,6 @@ func UpdateUser() gin.HandlerFunc {
 		if err := c.BindJSON(&user); err != nil {
 			c.IndentedJSON(400, "wrong Email?")
 			panic(err)
-			return
 		}
 		_, err := sqldb.DB.Query("UPDATE users SET email = ?, password = ?, name = ?, firstName = ?, role = ?, subjects = ? WHERE email = ?", user.Email, user.Password, user.Name, user.FirstName, user.Role, user.Subjects, user.Email)
 		if err != nil {
@@ -123,7 +123,7 @@ func LoginUser() gin.HandlerFunc {
 			panic(err.Error())
 		}
 
-		if (user.Password != dataUser.Password) {
+		if user.Password != dataUser.Password {
 			c.IndentedJSON(406, "Wrong pw")
 			return
 		}
