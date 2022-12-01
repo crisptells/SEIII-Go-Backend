@@ -32,6 +32,12 @@ func main() {
 	router.POST("/AddTutoring", data.InsertTutoring())
 	router.POST("/UpdateTutoring", data.UpdateTutoring())
 
-	//Starting service
+	//Routes for Appointments
+	router.GET("/Appointments", data.GetAllAppointments())
+	router.POST("/AddAppointment", data.InserAppointment())
+	router.POST("/UpdateAppointment", data.UpdateAppointment())
+	router.GET("/TutoringAppointments", data.GetTutoringAppointments())
+
+	//Start service
 	router.Run("localhost:3333")
 }

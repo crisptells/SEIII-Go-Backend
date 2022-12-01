@@ -4,7 +4,6 @@ import (
 	//"database/sql"
 	sqldb "example/user/Luis/globals"
 	structure "example/user/Luis/structures"
-	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -14,82 +13,121 @@ import (
 func InserAppointment() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//Create empty user
-		var newTuroring structure.Tutoring
+		var newAppointment structure.Appointment
 
-		//BindJSON to bind the received JSON to newTuroring
-		if err := c.BindJSON(&newTuroring); err != nil {
+		//BindJSON to bind the received JSON to newAppointment
+		if err := c.BindJSON(&newAppointment); err != nil {
 			c.IndentedJSON(400, "Failed to bind given values")
 			panic(err)
 		}
-		//Check if Tutoring already exists
-		rows, _ := sqldb.DB.Query("SELECT tutoring_id FROM tutorings WHERE Tutor='" + newTuroring.Tutor + "' AND Subject='" + newTuroring.Subject + "'")
+		//Check if Appointment already exists
+		rows, _ := sqldb.DB.Query("SELECT appointment_id FROM appointments WHERE Date='" + newAppointment.Date + "' AND tutoring_id='" + newAppointment.Tutoring_id + "'")
 
-		if rows != nil {
-			c.IndentedJSON(400, "Tutoring already exists")
+		if rows.Next() {
+			c.IndentedJSON(400, "Appointment for date and tutoring already exists")
 			return
 		}
 
 		//Create Tutoring on the DB
-		insert, err := sqldb.DB.Prepare("INSERT INTO `tutorings`(`Tutor`,`Subject`,`Students`,`MaxStudents`)VALUES(?, ?, ?, ?)")
+		insert, err := sqldb.DB.Prepare("INSERT INTO `appointments`(`Date`,`Duration`,`tutoring_id`)VALUES(?, ?, ?)")
 
 		if err != nil {
-			c.IndentedJSON(400, "error when inserting new Tutoring")
+			c.IndentedJSON(400, "error when inserting new Appointment")
 			panic(err)
 		}
 
-		_, insertErr := insert.Exec(&newTuroring.Tutor, &newTuroring.Subject, &newTuroring.Students, &newTuroring.MaxStudents)
+		_, insertErr := insert.Exec(&newAppointment.Date, &newAppointment.Duration, &newAppointment.Tutoring_id)
 		if insertErr != nil {
 			log.Fatal(insertErr)
 		}
 
-		c.IndentedJSON(200, newTuroring)
+		c.IndentedJSON(200, newAppointment)
 	}
 }
 
 func GetAllAppointments() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		rows, err := sqldb.DB.Query("select * from tutorings")
+		rows, err := sqldb.DB.Query("select * from appointments")
 		if err != nil {
-			c.IndentedJSON(400, "cant find tutorings")
+			c.IndentedJSON(400, "cant find appointments")
 			panic(err.Error())
 		}
 
-		var tutorings []structure.Tutoring
-		for rows.Next() {
-			var tutoring structure.Tutoring
-			if tutoringErr := rows.Scan(&tutoring.Tutor, &tutoring.Subject, &tutoring.Students, &tutoring.MaxStudents, &tutoring.Appointments); tutoringErr != nil {
-				log.Fatal(tutoringErr)
-			}
-			tutorings = append(tutorings, tutoring)
+		if rows == nil {
+			c.IndentedJSON(400, "no appointments in DB")
+			panic(err.Error())
 		}
 
-		c.IndentedJSON(200, tutorings)
+		var appointments []structure.Appointment
+		for rows.Next() {
+			var appointment structure.Appointment
+			if tutoringErr := rows.Scan(&appointment.Appointment_id, &appointment.Date, &appointment.Duration, &appointment.Tutoring_id); tutoringErr != nil {
+				log.Fatal(tutoringErr)
+			}
+			appointments = append(appointments, appointment)
+		}
+
+		c.IndentedJSON(200, appointments)
 	}
 }
 
-func GetTutoringAppointmetns() gin.HandlerFunc {
-	//hehe
+func GetTutoringAppointments() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		//Create empty appointment
+		var newAppointment structure.Appointment
+
+		//BindJSON to bind the received JSON to newAppointment
+		if err := c.BindJSON(&newAppointment); err != nil {
+			c.IndentedJSON(400, "Failed to bind given values")
+			panic(err)
+		}
+
+		rows, err := sqldb.DB.Query("SELECT * FROM appointments WHERE tutoring_id='" + newAppointment.Tutoring_id + "'")
+
+		if err != nil {
+			c.IndentedJSON(400, "Appointment for date and tutoring already exists")
+			return
+		}
+
+		var appointments []structure.Appointment
+		for rows.Next() {
+			var appointment structure.Appointment
+			if tutoringErr := rows.Scan(&appointment.Appointment_id, &appointment.Date, &appointment.Duration, &appointment.Tutoring_id); tutoringErr != nil {
+				log.Fatal(tutoringErr)
+			}
+			appointments = append(appointments, appointment)
+		}
+
+		c.IndentedJSON(200, appointments)
 
 	}
 }
 
 func UpdateAppointment() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		//Create empty tutoring
-		var tutoring structure.Tutoring
+		//Create empty appointment
+		var appointment structure.Appointment
 
-		//BindJSON to bind the received JSON to newTuroring
-		if err := c.BindJSON(&tutoring); err != nil {
+		//BindJSON to bind the received JSON to newAppointment
+		if err := c.BindJSON(&appointment); err != nil {
 			c.IndentedJSON(400, "wrong Tutoring?")
 			panic(err)
 		}
-		_, err := sqldb.DB.Query("UPDATE tutorings SET Tutor = ?, Subject = ?, Students = ?, MaxStudents = ?, Appointments = ? WHERE Tutor = ? AND Subject = ?", tutoring.Tutor, tutoring.Subject, tutoring.Students, tutoring.MaxStudents, tutoring.Appointments, tutoring.Tutor, tutoring.Subject)
+
+		//Check if appointment_id is in DB
+		rows, _ := sqldb.DB.Query("SELECT * FROM appointments WHERE tutoring_id='" + appointment.Tutoring_id + "'")
+
+		if !rows.Next() {
+			c.IndentedJSON(400, "Appointment does not exist")
+			return
+		}
+
+		_, err := sqldb.DB.Query("UPDATE appointments SET Date = ?, Duration = ?, tutoring_id = ? WHERE appointment_id = ?", appointment.Date, appointment.Duration, appointment.Tutoring_id, appointment.Appointment_id)
 		if err != nil {
-			fmt.Printf("Error: cant update user")
+			c.IndentedJSON(400, "cant update appointment")
 			panic(err.Error())
 		}
 
-		c.IndentedJSON(200, tutoring)
+		c.IndentedJSON(200, appointment)
 	}
 }

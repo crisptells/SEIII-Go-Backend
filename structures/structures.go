@@ -10,14 +10,16 @@ type User struct {
 }
 
 type Tutoring struct {
-	Tutor        string `json:"user"` //just the email
-	Subject      string `json:"subject"`
-	Students     string `json:"students"` //just the emails
-	MaxStudents  int    `json:"maxStudents"`
-	Appointments []Appointment
+	Tutoring_id string `json:"tutoring_id"`
+	Tutor       string `json:"user"` //just the email
+	Subject     string `json:"subject"`
+	Students    string `json:"students"` //just the emails
+	MaxStudents int    `json:"maxStudents"`
 }
 
 type Appointment struct {
-	Date     string `json:"date"`
-	Duration string `json:"duration"`
+	Appointment_id int    `json:"appointment_id"`
+	Date           string `json:"date"`
+	Duration       string `json:"duration"`
+	Tutoring_id    string `json:"tutoring_id"`
 }
