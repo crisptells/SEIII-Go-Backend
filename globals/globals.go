@@ -16,7 +16,7 @@ func Connect() {
 		panic(err.Error())
 	}
 
-	DB = db
+	DB = db //Give DB value to global variable
 
 	fmt.Println("Connected to DB")
 }
