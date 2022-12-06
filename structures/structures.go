@@ -1,12 +1,11 @@
 package structures
 
 type User struct {
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	Name      string `json:"name"`
-	FirstName string `json:"firstName"`
-	Subjects  string `json:"subjects"`
-	Role      string `json:"role"`
+	Email    string  `json:"email"`
+	Password string  `json:"password"`
+	Name     string  `json:"name"`
+	Vorname  string  `json:"firstName"`
+	Geld     float32 `json:"geld"`
 }
 
 type Tutoring struct {
@@ -22,4 +21,14 @@ type Appointment struct {
 	Date           string `json:"date"`
 	Duration       string `json:"duration"`
 	Tutoring_id    string `json:"tutoring_id"`
+}
+
+type Experience struct {
+	User_email  string `json:"user_email"`
+	Math        int    `json:"math"`
+	German      int    `json:"german"`
+	English     int    `json:"english"`
+	Physics     int    `json:"physics"`
+	Chemistry   int    `json:"chemistry"`
+	Informatics int    `json:"informatics"`
 }

@@ -17,8 +17,9 @@ func getRoot(c *gin.Context) {
 
 func main() {
 	sqldb.Connect()
-
+	//gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+
 	router.GET("/", getRoot)
 
 	//Routes for users
@@ -37,6 +38,12 @@ func main() {
 	router.POST("/AddAppointment", data.InserAppointment())
 	router.POST("/UpdateAppointment", data.UpdateAppointment())
 	router.GET("/TutoringAppointments", data.GetTutoringAppointments())
+
+	//Routes for Experiences
+	router.GET("/Experiences", data.GetAllExperiences())
+	router.POST("/AddExp", data.InsertExperience())
+	router.POST("/UpdateExp", data.UpdateExperience())
+	router.GET("/UserExp", data.GetExperienceForUser())
 
 	//Start service
 	router.Run("localhost:3333")

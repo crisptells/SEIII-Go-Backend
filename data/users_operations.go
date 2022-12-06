@@ -31,33 +31,22 @@ func InsertUser() gin.HandlerFunc {
 			panic(err)
 		}
 		//Check if email already exists
-		rows, _ := sqldb.DB.Query("SELECT email FROM users")
-		var mails []string
-		for rows.Next() {
-			var mail string
-			if userErr := rows.Scan(&mail); userErr != nil {
-				fmt.Println(userErr.Error())
-			}
-			mails = append(mails, mail)
-		}
+		rows, _ := sqldb.DB.Query("SELECT email FROM users WHERE email='" + newUser.Email + "'")
 
-		//Check if given mail is in all the mails from DB
-		for _, mail := range mails {
-			if mail == newUser.Email {
-				c.IndentedJSON(400, "Email already exists")
-				return
-			}
+		if rows.Next() {
+			c.IndentedJSON(400, "Email already exists")
+			return
 		}
 
 		//Create user on the DB
-		insert, err := sqldb.DB.Prepare("INSERT INTO `users`(`email`,`password`,`name`,`firstName`, `role`, `subjects`)VALUES(?, ?, ?, ?, ?, ?)")
+		insert, err := sqldb.DB.Prepare("INSERT INTO `users`(`email`,`password`,`name`,`firstName`, `geld`)VALUES(?, ?, ?, ?, ?)")
 
 		if err != nil {
 			c.IndentedJSON(400, "cant create user in DB")
 			panic(err)
 		}
 
-		_, insertErr := insert.Exec(&newUser.Email, &newUser.Password, &newUser.Name, &newUser.FirstName, &newUser.Role, &newUser.Subjects)
+		_, insertErr := insert.Exec(&newUser.Email, &newUser.Password, &newUser.Name, &newUser.Vorname, &newUser.Geld)
 		if insertErr != nil {
 			log.Fatal(insertErr)
 		}
@@ -70,14 +59,14 @@ func GetAllUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		rows, err := sqldb.DB.Query("select * from users")
 		if err != nil {
-			c.IndentedJSON(400, "cant find games")
+			c.IndentedJSON(400, "cant find users")
 			panic(err.Error())
 		}
 
 		var users []structure.User
 		for rows.Next() {
 			var user structure.User
-			if userErr := rows.Scan(&user.Email, &user.Password, &user.Name, &user.FirstName, &user.Role, &user.Subjects); userErr != nil {
+			if userErr := rows.Scan(&user.Email, &user.Password, &user.Name, &user.Vorname, &user.Geld); userErr != nil {
 				log.Fatal(userErr)
 			}
 			users = append(users, user)
@@ -97,7 +86,7 @@ func UpdateUser() gin.HandlerFunc {
 			c.IndentedJSON(400, "wrong Email?")
 			panic(err)
 		}
-		_, err := sqldb.DB.Query("UPDATE users SET email = ?, password = ?, name = ?, firstName = ?, role = ?, subjects = ? WHERE email = ?", user.Email, user.Password, user.Name, user.FirstName, user.Role, user.Subjects, user.Email)
+		_, err := sqldb.DB.Query("UPDATE users SET email = ?, password = ?, name = ?, vorname = ?, geld = ? WHERE email = ?", user.Email, user.Password, user.Name, user.Vorname, user.Geld, user.Email)
 		if err != nil {
 			fmt.Printf("Error: cant update user")
 			panic(err.Error())
