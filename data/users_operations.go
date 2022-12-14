@@ -51,7 +51,7 @@ func InsertUser() gin.HandlerFunc {
 			log.Fatal(insertErr)
 		}
 
-		c.IndentedJSON(200, newUser)
+		c.IndentedJSON(201, newUser)
 	}
 }
 
@@ -73,6 +73,36 @@ func GetAllUsers() gin.HandlerFunc {
 		}
 
 		c.IndentedJSON(200, users)
+	}
+}
+
+func GetSpecificUser() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//Create empty user
+		var user structure.User
+
+		//BindJSON to bind the received JSON to newUser
+		if err := c.BindJSON(&user); err != nil {
+			c.IndentedJSON(400, "wrong Email?")
+			panic(err)
+		}
+		row, err := sqldb.DB.Query("SELECT * FROM users WHERE email = ?", user.Email)
+		if err != nil {
+			fmt.Printf("Error: cant find user")
+			panic(err.Error())
+		}
+		fmt.Printf(user.Email)
+		if row != nil {
+			c.IndentedJSON(404, "User not found")
+			return
+		}
+
+		row.Next()
+		if userErr := row.Scan(&user.Email, &user.Password, &user.Name, &user.Vorname, &user.Geld); userErr != nil {
+			log.Fatal(userErr)
+		}
+
+		c.IndentedJSON(200, user)
 	}
 }
 
