@@ -2,6 +2,7 @@ package data
 
 import (
 	//"database/sql"
+
 	sqldb "example/user/Luis/globals"
 	structure "example/user/Luis/structures"
 	"fmt"
@@ -86,13 +87,32 @@ func GetSpecificUser() gin.HandlerFunc {
 			c.IndentedJSON(400, "wrong Email?")
 			panic(err)
 		}
+
+		//get all emails and check if email is there, to prevent db error
+
+		DBmails, err := sqldb.DB.Query("SELECT email FROM users")
+		noMail := true
+		for DBmails.Next() {
+			var dbMail string
+			if userErr := DBmails.Scan(&dbMail); userErr != nil {
+				log.Fatal(userErr)
+			}
+			if user.Email == dbMail {
+				noMail = false
+			}
+		}
+
+		if noMail {
+			c.IndentedJSON(400, "User not found")
+			return
+		}
+
 		row, err := sqldb.DB.Query("SELECT * FROM users WHERE email = ?", user.Email)
 		if err != nil {
 			fmt.Printf("Error: cant find user")
 			panic(err.Error())
 		}
-		fmt.Printf(user.Email)
-		if row != nil {
+		if row == nil {
 			c.IndentedJSON(404, "User not found")
 			return
 		}
