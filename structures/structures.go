@@ -10,7 +10,7 @@ type User struct {
 
 type Tutoring struct {
 	Tutoring_id string `json:"tutoring_id"`
-	Tutor       string `json:"user"` //just the email
+	Tutor       string `json:"tutor"` //just the email
 	Subject     string `json:"subject"`
 	Students    string `json:"students"` //just the emails
 	MaxStudents int    `json:"maxStudents"`
