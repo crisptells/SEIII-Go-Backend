@@ -1,11 +1,11 @@
 package structures
 
 type User struct {
-	Email    string  `json:"email"`
-	Password string  `json:"password"`
-	Name     string  `json:"name"`
-	Vorname  string  `json:"firstName"`
-	Geld     float32 `json:"geld"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+	Vorname  string `json:"firstName"`
+	Geld     string `json:"cash"`
 }
 
 type Tutoring struct {

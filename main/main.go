@@ -40,7 +40,7 @@ func main() {
 
 	//Routes for users
 	router.GET("/Users", data.GetAllUsers())
-	router.GET("/User", data.GetSpecificUser())
+	router.POST("/User", data.GetSpecificUser())
 	router.POST("/AddUser", data.InsertUser())
 	router.POST("/UpdateUser", data.UpdateUser())
 	router.POST("/LoginUser", data.LoginUser())

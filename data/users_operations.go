@@ -40,7 +40,7 @@ func InsertUser() gin.HandlerFunc {
 		}
 
 		//Create user on the DB
-		insert, err := sqldb.DB.Prepare("INSERT INTO `users`(`email`,`password`,`name`,`firstName`, `geld`)VALUES(?, ?, ?, ?, ?)")
+		insert, err := sqldb.DB.Prepare("INSERT INTO `users`(`email`,`passwort`,`name`,`vorname`, `geld`)VALUES(?, ?, ?, ?, ?)")
 
 		if err != nil {
 			c.IndentedJSON(400, "cant create user in DB")
@@ -81,16 +81,14 @@ func GetSpecificUser() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//Create empty user
 		var user structure.User
-
-		//BindJSON to bind the received JSON to newUser
+		//BindJSON to bind the received JSON to user
 		if err := c.BindJSON(&user); err != nil {
 			c.IndentedJSON(400, "wrong Email?")
 			panic(err)
 		}
-
+		fmt.Printf(user.Email)
 		//get all emails and check if email is there, to prevent db error
-
-		DBmails, err := sqldb.DB.Query("SELECT email FROM users")
+		DBmails, _ := sqldb.DB.Query("SELECT email FROM users")
 		noMail := true
 		for DBmails.Next() {
 			var dbMail string
@@ -103,7 +101,7 @@ func GetSpecificUser() gin.HandlerFunc {
 		}
 
 		if noMail {
-			c.IndentedJSON(400, "User not found")
+			c.IndentedJSON(402, "User not found")
 			return
 		}
 
@@ -156,7 +154,7 @@ func LoginUser() gin.HandlerFunc {
 			panic(err)
 		}
 		row := sqldb.DB.QueryRow("SELECT * FROM users WHERE email = ?", user.Email)
-		err := row.Scan(&dataUser.Email, &dataUser.Password)
+		err := row.Scan(&dataUser.Email, &dataUser.Password, &dataUser.Name, &dataUser.Vorname, &dataUser.Geld)
 		if err != nil {
 			fmt.Printf("Error: cant get user")
 			panic(err.Error())
