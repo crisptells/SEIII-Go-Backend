@@ -22,23 +22,23 @@ func InsertTutoring() gin.HandlerFunc {
 			c.IndentedJSON(400, "Failed to bind given values")
 			panic(err)
 		}
+		fmt.Printf("tutor: " + newTutoring.Tutor + " subject: " + newTutoring.Subject)
 		//Check if Tutoring already exists
 		rows, _ := sqldb.DB.Query("SELECT tutoring_id FROM tutorings WHERE Tutor='" + newTutoring.Tutor + "' AND Subject='" + newTutoring.Subject + "'")
-
-		if rows != nil {
+		for rows.Next() {
 			c.IndentedJSON(400, "Tutoring already exists")
 			return
 		}
 
 		//Create Tutoring on the DB
-		insert, err := sqldb.DB.Prepare("INSERT INTO `tutorings`(`Tutor`,`Subject`,`Students`,`MaxStudents`)VALUES(?, ?, ?, ?)")
+		insert, err := sqldb.DB.Prepare("INSERT INTO `tutorings`(`Tutor`,`Subject`,`Description`)VALUES(?, ?, ?)")
 
 		if err != nil {
 			c.IndentedJSON(400, "error when inserting new Tutoring")
 			panic(err)
 		}
 
-		_, insertErr := insert.Exec(&newTutoring.Tutoring_id, &newTutoring.Tutor, &newTutoring.Subject, &newTutoring.Students, &newTutoring.MaxStudents)
+		_, insertErr := insert.Exec(&newTutoring.Tutor, &newTutoring.Subject, &newTutoring.Description)
 		if insertErr != nil {
 			log.Fatal(insertErr)
 		}
@@ -58,7 +58,7 @@ func GetAllTutorings() gin.HandlerFunc {
 		var tutorings []structure.Tutoring
 		for rows.Next() {
 			var tutoring structure.Tutoring
-			if tutoringErr := rows.Scan(&tutoring.Tutoring_id, &tutoring.Tutor, &tutoring.Subject, &tutoring.Students, &tutoring.MaxStudents); tutoringErr != nil {
+			if tutoringErr := rows.Scan(&tutoring.Tutoring_id, &tutoring.Tutor, &tutoring.Subject, &tutoring.Description); tutoringErr != nil {
 				log.Fatal(tutoringErr)
 			}
 			tutorings = append(tutorings, tutoring)
@@ -186,7 +186,7 @@ func GetUserTutorings() gin.HandlerFunc {
 			}
 			var tutoring structure.Tutoring
 			tutorings_row.Next()
-			if err := tutorings_row.Scan(&tutoring.Tutoring_id, &tutoring.Tutor, &tutoring.Subject, &tutoring.Students, &tutoring.MaxStudents); err != nil {
+			if err := tutorings_row.Scan(&tutoring.Tutoring_id, &tutoring.Tutor, &tutoring.Subject, &tutoring.Description); err != nil {
 				log.Fatal(err)
 			}
 			userstutorings = append(userstutorings, tutoring)
@@ -206,7 +206,7 @@ func UpdateTutoring() gin.HandlerFunc {
 			c.IndentedJSON(400, "wrong Tutoring?")
 			panic(err)
 		}
-		_, err := sqldb.DB.Query("UPDATE tutorings SET Tutor = ?, Subject = ?, Students = ?, MaxStudents = ? WHERE tutoring_id", tutoring.Tutor, tutoring.Subject, tutoring.Students, tutoring.MaxStudents, tutoring.Tutoring_id)
+		_, err := sqldb.DB.Query("UPDATE tutorings SET Tutor = ?, Subject = ?, Description = ? WHERE tutoring_id", tutoring.Tutor, tutoring.Subject, tutoring.Description, tutoring.Tutoring_id)
 		if err != nil {
 			c.IndentedJSON(400, "cant update tutoring")
 			panic(err.Error())
