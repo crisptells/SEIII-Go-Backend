@@ -50,6 +50,10 @@ func main() {
 	router.POST("/AddTutoring", data.InsertTutoring())
 	router.POST("/UpdateTutoring", data.UpdateTutoring())
 
+	//Routes for users_tutorings
+	router.POST("/AddUserTutoring", data.InsertUserTutoring())
+	router.GET("/GetUsersTutorings", data.GetUserTutorings())
+
 	//Routes for Appointments
 	router.GET("/Appointments", data.GetAllAppointments())
 	router.POST("/AddAppointment", data.InserAppointment())
@@ -60,7 +64,7 @@ func main() {
 	router.GET("/Experiences", data.GetAllExperiences())
 	router.POST("/AddExp", data.InsertExperience())
 	router.POST("/UpdateExp", data.UpdateExperience())
-	router.GET("/UserExp", data.GetExperienceForUser())
+	router.POST("/UserExp", data.GetExperienceForUser())
 
 	//Start service
 	router.Run("localhost:3333")

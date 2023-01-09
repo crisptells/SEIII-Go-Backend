@@ -32,3 +32,8 @@ type Experience struct {
 	Chemistry   int    `json:"chemistry"`
 	Informatics int    `json:"informatics"`
 }
+
+type User_tutoring struct {
+	User_email  string `json:"user_email"`
+	Tutoring_id int    `json:"tutoring_id"`
+}
