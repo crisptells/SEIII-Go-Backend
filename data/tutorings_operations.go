@@ -6,6 +6,7 @@ import (
 	structure "example/user/Luis/structures"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -98,7 +99,8 @@ func InsertUserTutoring() gin.HandlerFunc {
 				if userErr := DBmails.Scan(&dbMail); userErr != nil {
 					log.Fatal(userErr)
 				}
-				if user_tutoring.Tutoring_id == dbMail {
+				intVar, _ := strconv.Atoi(user_tutoring.Tutoring_id)
+				if intVar == dbMail {
 					isTutoringAlreadyThere = true
 				}
 			}
@@ -118,8 +120,8 @@ func InsertUserTutoring() gin.HandlerFunc {
 			c.IndentedJSON(400, "error when inserting new Tutoring")
 			panic(err)
 		}
-
-		_, insertErr := insert.Exec(&user_tutoring.User_email, &user_tutoring.Tutoring_id)
+		intTutoring_id, _ := strconv.Atoi(user_tutoring.Tutoring_id)
+		_, insertErr := insert.Exec(&user_tutoring.User_email, &intTutoring_id)
 		if insertErr != nil {
 			log.Fatal(insertErr)
 		}

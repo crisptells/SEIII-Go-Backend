@@ -35,5 +35,5 @@ type Experience struct {
 
 type User_tutoring struct {
 	User_email  string `json:"user_email"`
-	Tutoring_id int    `json:"tutoring_id"`
+	Tutoring_id string `json:"tutoring_id"`
 }
