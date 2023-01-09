@@ -63,7 +63,7 @@ func main() {
 	//Routes for Experiences
 	router.GET("/Experiences", data.GetAllExperiences())
 	router.POST("/AddExp", data.InsertExperience())
-	router.POST("/UpdateExp", data.UpdateExperience())
+	router.POST("/CountUpExp", data.AddExperience())
 	router.POST("/UserExp", data.GetExperienceForUser())
 
 	//Start service

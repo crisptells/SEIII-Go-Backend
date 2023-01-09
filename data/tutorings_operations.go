@@ -109,11 +109,9 @@ func InsertUserTutoring() gin.HandlerFunc {
 				c.IndentedJSON(401, "Email and Tutoring is already there!")
 				return
 			}
-
 		}
 		//Insert new usertutoring
 		//Create Tutoring on the DB
-
 		insert, err := sqldb.DB.Prepare("INSERT INTO `users_tutorings`(`user_email`,`tutoring_id`)VALUES(?, ?)")
 
 		if err != nil {
