@@ -24,8 +24,8 @@ type Appointment struct {
 
 type Experience struct {
 	User_email  string `json:"user_email"`
-	Math        int    `json:"math"`
 	German      int    `json:"german"`
+	Math        int    `json:"math"`
 	English     int    `json:"english"`
 	Physics     int    `json:"physics"`
 	Chemistry   int    `json:"chemistry"`

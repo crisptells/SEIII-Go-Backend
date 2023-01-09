@@ -194,6 +194,68 @@ func GetUserTutorings() gin.HandlerFunc {
 	}
 }
 
+func GetTutoringsUsers() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		//Create empty tutoring
+		var tutoring structure.Tutoring
+		//BindJSON to bind the received JSON to user
+		if err := c.BindJSON(&tutoring); err != nil {
+			c.IndentedJSON(400, "wrong Email?")
+			panic(err)
+		}
+
+		//get all emails and check if email is there, to prevent db error
+		DBmails, _ := sqldb.DB.Query("SELECT tutoring_id FROM tutorings where tutoring_id = ?", tutoring.Tutoring_id)
+		noMail := true
+		for DBmails.Next() {
+			var dbMail string
+			if userErr := DBmails.Scan(&dbMail); userErr != nil {
+				log.Fatal(userErr)
+			}
+			if tutoring.Tutoring_id == dbMail {
+				noMail = false
+			}
+		}
+		if noMail {
+			c.IndentedJSON(402, "Tutoring not found")
+			return
+		}
+
+		row, err := sqldb.DB.Query("SELECT user_email FROM users_tutorings WHERE tutoring_id = ?", tutoring.Tutoring_id)
+		if err != nil {
+			fmt.Printf("Error: cant find tutoring")
+			panic(err.Error())
+		}
+
+		//Get all user_emails for the tutoring
+		var user_emails []string
+		for row.Next() {
+			var user_email string
+			if userErr := row.Scan(&user_email); userErr != nil {
+				log.Fatal(userErr)
+			}
+			user_emails = append(user_emails, user_email)
+		}
+		//Get all the Tutorings for the user
+		var tutoringsusers []string
+		for index, _ := range user_emails {
+			tutorings_row, err := sqldb.DB.Query("SELECT * FROM users WHERE Email = ?", user_emails[index])
+			if err != nil {
+				fmt.Printf("Error: cant find user")
+				panic(err.Error())
+			}
+			var user structure.User
+			tutorings_row.Next()
+			if err := tutorings_row.Scan(&user.Email, &user.Password, &user.Name, &user.Vorname, &user.Geld); err != nil {
+				log.Fatal(err)
+			}
+			tutoringsusers = append(tutoringsusers, user.Email)
+		}
+
+		c.IndentedJSON(200, tutoringsusers)
+	}
+}
+
 func UpdateTutoring() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		//Create empty tutoring

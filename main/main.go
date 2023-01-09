@@ -53,6 +53,7 @@ func main() {
 	//Routes for users_tutorings
 	router.POST("/AddUserTutoring", data.InsertUserTutoring())
 	router.POST("/GetUsersTutorings", data.GetUserTutorings())
+	router.POST("/GetTutoringsUsers", data.GetTutoringsUsers())
 
 	//Routes for Appointments
 	router.GET("/Appointments", data.GetAllAppointments())
