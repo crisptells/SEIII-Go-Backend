@@ -86,7 +86,6 @@ func GetSpecificUser() gin.HandlerFunc {
 			c.IndentedJSON(400, "wrong Email?")
 			panic(err)
 		}
-		fmt.Printf(user.Email)
 		//get all emails and check if email is there, to prevent db error
 		DBmails, _ := sqldb.DB.Query("SELECT email FROM users")
 		noMail := true
